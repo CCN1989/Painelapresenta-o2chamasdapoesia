@@ -6,7 +6,6 @@
 <title>Ordem de Apresentação</title>
 
 <style>
-/* ===== CONFIGURAÇÕES GERAIS ===== */
 body {
   margin: 0;
   background: #ff8c00;
@@ -15,7 +14,7 @@ body {
   overflow: hidden;
 }
 
-/* ===== CABEÇALHO ===== */
+/* CABEÇALHO */
 #header {
   text-align: center;
   padding: 20px 10px 10px;
@@ -33,13 +32,12 @@ body {
   margin-top: 4px;
 }
 
-/* ===== CONTAINER ===== */
+/* CONTAINER */
 #container {
   height: calc(100vh - 140px);
-  overflow: hidden;
 }
 
-/* ===== TABELA ===== */
+/* TABELA */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -47,26 +45,23 @@ table {
 }
 
 thead {
-  position: sticky;
-  top: 0;
   background: #ffb347;
-  z-index: 10;
 }
 
 th {
   padding: 10px 8px;
-  text-align: center; /* centraliza títulos */
+  text-align: center;
   font-size: 20px;
   border-bottom: 2px solid #c2410c;
 }
 
 td {
   padding: 10px 8px;
-  text-align: left;
+  text-align: center; /* CENTRALIZA TODAS AS COLUNAS */
   white-space: nowrap;
 }
 
-/* ===== LINHAS ===== */
+/* LINHAS */
 tbody tr:nth-child(odd) {
   background: #ffd8a8;
 }
@@ -75,10 +70,9 @@ tbody tr:nth-child(even) {
   background: #ffcc80;
 }
 
-/* ===== STATUS ===== */
+/* STATUS */
 .status {
   font-weight: bold;
-  text-align: center;
   border-radius: 6px;
   padding: 6px 8px;
 }
@@ -102,13 +96,11 @@ tbody tr:nth-child(even) {
 
 <body>
 
-<!-- CABEÇALHO -->
 <div id="header">
   <div class="titulo">2º Chamas da Poesia – CTG Chama Nativa</div>
   <div class="subtitulo">Ordem de apresentação</div>
 </div>
 
-<!-- TABELA -->
 <div id="container">
   <table>
     <thead>
@@ -130,52 +122,62 @@ tbody tr:nth-child(even) {
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbwAsK9tXNwUV3XwieDhTPN01eeFfIZ2VlxnF1mUNXisLc3ffLk_yUTHoQVidu0GiODAXw/exec";
 const tbody = document.getElementById("dados");
-const container = document.getElementById("container");
 
-let scrollPos = 0;
+const LINHAS_POR_PAGINA = 15;
+const TEMPO_PAGINA = 4000;
 
-/* ===== CARREGA DADOS ===== */
+let dados = [];
+let paginaAtual = 0;
+
+/* CARREGA DADOS */
 function carregarDados() {
   fetch(URL)
     .then(r => r.json())
     .then(lista => {
-      tbody.innerHTML = "";
-
-      lista.forEach(l => {
-        const statusClasse = l["Status"]
-          .toLowerCase()
-          .replace("-", "")
-          .replace(" ", "");
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${l["Ordem"]}</td>
-          <td>${l["Cód."]}</td>
-          <td>${l["Categoria"]}</td>
-          <td>${l["Concorrente"]}</td>
-          <td>${l["Entidade"]}</td>
-          <td>${l["Municipio"]}</td>
-          <td>${l["Região"]}</td>
-          <td class="status ${statusClasse}">${l["Status"]}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+      dados = lista;
+      paginaAtual = 0;
+      renderizarPagina();
     });
 }
 
-/* ===== ROLAGEM ===== */
-function rolar() {
-  scrollPos += 0.3;
-  container.scrollTop = scrollPos;
+/* RENDERIZA UMA PÁGINA */
+function renderizarPagina() {
+  tbody.innerHTML = "";
 
-  if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
-    scrollPos = 0;
+  const inicio = paginaAtual * LINHAS_POR_PAGINA;
+  const fim = inicio + LINHAS_POR_PAGINA;
+  const pagina = dados.slice(inicio, fim);
+
+  pagina.forEach(l => {
+    const statusClasse = l["Status"]
+      .toLowerCase()
+      .replace("-", "")
+      .replace(" ", "");
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${l["Ordem"]}</td>
+      <td>${l["Cód."]}</td>
+      <td>${l["Categoria"]}</td>
+      <td>${l["Concorrente"]}</td>
+      <td>${l["Entidade"]}</td>
+      <td>${l["Municipio"]}</td>
+      <td>${l["Região"]}</td>
+      <td class="status ${statusClasse}">${l["Status"]}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  paginaAtual++;
+  if (paginaAtual * LINHAS_POR_PAGINA >= dados.length) {
+    paginaAtual = 0;
   }
 }
 
+/* INICIALIZA */
 carregarDados();
+setInterval(renderizarPagina, TEMPO_PAGINA);
 setInterval(carregarDados, 30000);
-setInterval(rolar, 30);
 </script>
 
 </body>
