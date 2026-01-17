@@ -9,34 +9,33 @@
 /* ===== CONFIGURAÇÕES GERAIS ===== */
 body {
   margin: 0;
-  background: #FF8C00;
-  color: #000000;
+  background: #ff8c00;
+  color: #000;
   font-family: Arial, Helvetica, sans-serif;
   overflow: hidden;
 }
 
-/* ===== CABEÇALHO FIXO ===== */
+/* ===== CABEÇALHO ===== */
 #header {
   text-align: center;
   padding: 20px 10px 10px;
-  background: #FF8C00;
-  border-bottom: 2px solid #1e293b;
+  background: #ff8c00;
+  border-bottom: 3px solid #c2410c;
 }
 
 .titulo {
-  font-size: 48px;
+  font-size: 42px;
   font-weight: bold;
 }
 
 .subtitulo {
-  font-size: 32px;
-  margin-top: 5px;
-  color: #000000;
+  font-size: 26px;
+  margin-top: 4px;
 }
 
-/* ===== CONTAINER DA TABELA ===== */
+/* ===== CONTAINER ===== */
 #container {
-  height: calc(100vh - 150px); /* espaço reservado para o cabeçalho */
+  height: calc(100vh - 140px);
   overflow: hidden;
 }
 
@@ -44,55 +43,59 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 26px;
+  font-size: 22px;
 }
 
 thead {
   position: sticky;
   top: 0;
-  background: #FFA54F;
+  background: #ffb347;
   z-index: 10;
 }
 
-th, td {
-  padding: 12px 10px;
+th {
+  padding: 10px 8px;
+  text-align: center; /* centraliza títulos */
+  font-size: 20px;
+  border-bottom: 2px solid #c2410c;
+}
+
+td {
+  padding: 10px 8px;
   text-align: left;
   white-space: nowrap;
 }
 
-th {
-  border-bottom: 2px solid #334155;
-  color: #000000;
-}
-
-/* Linhas alternadas */
+/* ===== LINHAS ===== */
 tbody tr:nth-child(odd) {
-  background: #020617;
+  background: #ffd8a8;
 }
 
 tbody tr:nth-child(even) {
-  background: #020617cc;
+  background: #ffcc80;
 }
 
 /* ===== STATUS ===== */
 .status {
   font-weight: bold;
   text-align: center;
-  border-radius: 8px;
-  padding: 6px 10px;
+  border-radius: 6px;
+  padding: 6px 8px;
 }
 
 .aguardando {
   background: #dc2626;
+  color: #fff;
 }
 
 .checkin {
   background: #facc15;
-  color: #000000;
+  color: #000;
 }
 
 .liberado {
   background: #16a34a;
+  color: #fff;
 }
 </style>
 </head>
@@ -125,7 +128,7 @@ tbody tr:nth-child(even) {
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbwAsK9tXNwUV3XwieDhTPN01eeFfIZ2VlxnF1mUNXisLc3ffLk_yUTHoQVidu0GiODAXw/exec"; // <<< COLE AQUI A URL DO APPS SCRIPT
+const URL = "https://script.google.com/macros/s/AKfycbwAsK9tXNwUV3XwieDhTPN01eeFfIZ2VlxnF1mUNXisLc3ffLk_yUTHoQVidu0GiODAXw/exec";
 const tbody = document.getElementById("dados");
 const container = document.getElementById("container");
 
@@ -134,7 +137,7 @@ let scrollPos = 0;
 /* ===== CARREGA DADOS ===== */
 function carregarDados() {
   fetch(URL)
-    .then(response => response.json())
+    .then(r => r.json())
     .then(lista => {
       tbody.innerHTML = "";
 
@@ -153,33 +156,27 @@ function carregarDados() {
           <td>${l["Entidade"]}</td>
           <td>${l["Municipio"]}</td>
           <td>${l["Região"]}</td>
-          <td class="status ${statusClasse}">
-            ${l["Status"]}
-          </td>
+          <td class="status ${statusClasse}">${l["Status"]}</td>
         `;
         tbody.appendChild(tr);
       });
-    })
-    .catch(err => console.error("Erro ao carregar dados:", err));
+    });
 }
 
-/* ===== ROLAGEM AUTOMÁTICA ===== */
+/* ===== ROLAGEM ===== */
 function rolar() {
-  scrollPos += 0.3; // velocidade da rolagem (ajuste se quiser)
+  scrollPos += 0.3;
   container.scrollTop = scrollPos;
 
   if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
     scrollPos = 0;
-    container.scrollTop = 0;
   }
 }
 
-/* ===== INICIALIZAÇÃO ===== */
 carregarDados();
-setInterval(carregarDados, 30000); // atualiza dados a cada 30s
-setInterval(rolar, 30);            // rolagem suave
+setInterval(carregarDados, 30000);
+setInterval(rolar, 30);
 </script>
 
 </body>
 </html>
-
