@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordem de Apresentação</title>
+
+<style>
+/* ===== CONFIGURAÇÕES GERAIS ===== */
+body {
+  margin: 0;
+  background: #FF8C00;
+  color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+}
+
+/* ===== CABEÇALHO FIXO ===== */
+#header {
+  text-align: center;
+  padding: 20px 10px 10px;
+  background: #FF8C00;
+  border-bottom: 2px solid #1e293b;
+}
+
+.titulo {
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.subtitulo {
+  font-size: 32px;
+  margin-top: 5px;
+  color: #000000;
+}
+
+/* ===== CONTAINER DA TABELA ===== */
+#container {
+  height: calc(100vh - 150px); /* espaço reservado para o cabeçalho */
+  overflow: hidden;
+}
+
+/* ===== TABELA ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 26px;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  background: #FFA54F;
+  z-index: 10;
+}
+
+th, td {
+  padding: 12px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  border-bottom: 2px solid #334155;
+  color: #000000;
+}
+
+/* Linhas alternadas */
+tbody tr:nth-child(odd) {
+  background: #020617;
+}
+
+tbody tr:nth-child(even) {
+  background: #020617cc;
+}
+
+/* ===== STATUS ===== */
+.status {
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.aguardando {
+  background: #dc2626;
+}
+
+.checkin {
+  background: #facc15;
+  color: #000000;
+}
+
+.liberado {
+  background: #16a34a;
+}
+</style>
+</head>
+
+<body>
+
+<!-- CABEÇALHO -->
+<div id="header">
+  <div class="titulo">2º Chamas da Poesia – CTG Chama Nativa</div>
+  <div class="subtitulo">Ordem de apresentação</div>
+</div>
+
+<!-- TABELA -->
+<div id="container">
+  <table>
+    <thead>
+      <tr>
+        <th>Ordem</th>
+        <th>Cód.</th>
+        <th>Categoria</th>
+        <th>Concorrente</th>
+        <th>Entidade</th>
+        <th>Município</th>
+        <th>Região</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="dados"></tbody>
+  </table>
+</div>
+
+<script>
+const URL = "https://script.google.com/macros/s/AKfycbwiWZpvgIlWB8DEqz0fBv7HokFzAPumJ013ryRXXkT2IccNWJWuHnyw9JByNGNu-quALw/exec"; // <<< COLE AQUI A URL DO APPS SCRIPT
+const tbody = document.getElementById("dados");
+const container = document.getElementById("container");
+
+let scrollPos = 0;
+
+/* ===== CARREGA DADOS ===== */
+function carregarDados() {
+  fetch(URL)
+    .then(response => response.json())
+    .then(lista => {
+      tbody.innerHTML = "";
+
+      lista.forEach(l => {
+        const statusClasse = l["Status"]
+          .toLowerCase()
+          .replace("-", "")
+          .replace(" ", "");
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${l["Ordem"]}</td>
+          <td>${l["Cód."]}</td>
+          <td>${l["Categoria"]}</td>
+          <td>${l["Concorrente"]}</td>
+          <td>${l["Entidade"]}</td>
+          <td>${l["Municipio"]}</td>
+          <td>${l["Região"]}</td>
+          <td class="status ${statusClasse}">
+            ${l["Status"]}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(err => console.error("Erro ao carregar dados:", err));
+}
+
+/* ===== ROLAGEM AUTOMÁTICA ===== */
+function rolar() {
+  scrollPos += 0.3; // velocidade da rolagem (ajuste se quiser)
+  container.scrollTop = scrollPos;
+
+  if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
+    scrollPos = 0;
+    container.scrollTop = 0;
+  }
+}
+
+/* ===== INICIALIZAÇÃO ===== */
+carregarDados();
+setInterval(carregarDados, 30000); // atualiza dados a cada 30s
+setInterval(rolar, 30);            // rolagem suave
+</script>
+
+</body>
+</html>
