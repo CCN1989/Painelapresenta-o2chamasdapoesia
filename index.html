@@ -12,6 +12,9 @@ body {
   color: #000;
   font-family: Arial, Helvetica, sans-serif;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 /* CABEÇALHO */
@@ -63,23 +66,19 @@ body {
 
 .lg {
   font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
-.lg.aguardando {
-  color: #dc2626;
-}
-
-.lg.checkin {
-  color: #facc15;
-}
-
-.lg.liberado {
-  color: #16a34a;
-}
+/* Cores da Legenda */
+.lg.npresente { color: #fff; background: #dc2626; }
+.lg.aguardando { color: #000; background: #facc15; }
+.lg.concluido { color: #fff; background: #16a34a; }
 
 /* CONTAINER */
 #container {
-  height: calc(100vh - 180px);
+  flex: 1;
+  overflow: hidden;
 }
 
 /* TABELA */
@@ -94,47 +93,55 @@ thead {
 }
 
 th {
-  padding: 10px 8px;
+  padding: 12px 8px;
   text-align: center;
   font-size: 20px;
   border-bottom: 2px solid #c2410c;
 }
 
 td {
-  padding: 10px 8px;
+  padding: 12px 8px;
   text-align: center;
   white-space: nowrap;
 }
 
 /* LINHAS */
-tbody tr:nth-child(odd) {
-  background: #ffd8a8;
-}
+tbody tr:nth-child(odd) { background: #ffd8a8; }
+tbody tr:nth-child(even) { background: #ffcc80; }
 
-tbody tr:nth-child(even) {
-  background: #ffcc80;
-}
-
-/* STATUS */
-.status {
+/* STATUS - ESTILOS FIXOS */
+.status-box {
   font-weight: bold;
   border-radius: 6px;
-  padding: 6px 8px;
+  padding: 8px 12px;
+  display: inline-block;
+  min-width: 150px;
 }
 
-.aguardando {
-  background: #dc2626;
-  color: #fff;
+.npresente { background: #dc2626 !important; color: #fff !important; }
+.aguardando { background: #facc15 !important; color: #000 !important; }
+.concluido { background: #16a34a !important; color: #fff !important; }
+
+/* RODAPÉ LETREIRO */
+#footer {
+  background: #c2410c;
+  color: white;
+  padding: 10px 0;
+  font-size: 28px;
+  font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.checkin {
-  background: #facc15;
-  color: #000;
+.marquee {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 15s linear infinite;
 }
 
-.liberado {
-  background: #16a34a;
-  color: #fff;
+@keyframes marquee {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-100%, 0); }
 }
 </style>
 </head>
@@ -142,29 +149,19 @@ tbody tr:nth-child(even) {
 <body>
 
 <div id="header">
-  <!-- LOGO ESQUERDA -->
-  <img src="Logo1.png" class="logo" alt="Logo esquerda">
-
-  <!-- TÍTULO CENTRAL -->
+  <img src="Logo1.png" class="logo" alt="Logo">
   <div class="header-center">
     <div class="titulo">2º Chamas da Poesia – CTG Chama Nativa</div>
     <div class="subtitulo">Ordem de apresentação</div>
-
-    <!-- LEGENDA -->
     <div class="legenda-container">
       <div class="legenda-move">
-        <span class="lg aguardando">Não presente</span>:
-        Não presente no evento &nbsp;&nbsp;|&nbsp;&nbsp;
-        <span class="lg checkin">Aguardando</span>:
-        Aguardando apresentação &nbsp;&nbsp;|&nbsp;&nbsp;
-        <span class="lg liberado">Concluido</span>:
-        Apresentação concluída
+        <span class="lg npresente">Não presente</span> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <span class="lg aguardando">Aguardando</span> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <span class="lg concluido">Concluído</span>
       </div>
     </div>
   </div>
-
-  <!-- LOGO DIREITA -->
-  <img src="Logo2.png" class="logo" alt="Logo direita">
+  <img src="Logo2.png" class="logo" alt="Logo">
 </div>
 
 <div id="container">
@@ -183,39 +180,48 @@ tbody tr:nth-child(even) {
   </table>
 </div>
 
+<div id="footer">
+  <div class="marquee">Boa Sorte! &nbsp;&nbsp;&nbsp;&nbsp; Boa Sorte! &nbsp;&nbsp;&nbsp;&nbsp; Boa Sorte! &nbsp;&nbsp;&nbsp;&nbsp; Boa Sorte!</div>
+</div>
+
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbwAsK9tXNwUV3XwieDhTPN01eeFfIZ2VlxnF1mUNXisLc3ffLk_yUTHoQVidu0GiODAXw/exec";
 const tbody = document.getElementById("dados");
 
-const LINHAS_POR_PAGINA = 15;
-const TEMPO_PAGINA = 4000;
+const LINHAS_POR_PAGINA = 8;
+const TEMPO_PAGINA = 5000;
 
 let dados = [];
 let paginaAtual = 0;
 
-/* CARREGA DADOS */
 function carregarDados() {
   fetch(URL)
     .then(r => r.json())
     .then(lista => {
       dados = lista;
-      paginaAtual = 0;
-      renderizarPagina();
-    });
+      if (paginaAtual === 0) renderizarPagina();
+    })
+    .catch(err => console.error("Erro ao carregar:", err));
 }
 
-/* RENDERIZA UMA PÁGINA */
 function renderizarPagina() {
+  if (dados.length === 0) return;
+  
   tbody.innerHTML = "";
-
   const inicio = paginaAtual * LINHAS_POR_PAGINA;
   const fim = inicio + LINHAS_POR_PAGINA;
   const pagina = dados.slice(inicio, fim);
 
   pagina.forEach(l => {
-    const statusClasse = l["Status"]
-      .toLowerCase()
-      .replace(/\s|-/g, "");
+    // Normaliza o status para aplicar a classe CSS correta
+    let statusTexto = l["Status"] || "";
+    let classeCor = "";
+    
+    let statusNormalizado = statusTexto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    if (statusNormalizado.includes("nao presente")) classeCor = "npresente";
+    else if (statusNormalizado.includes("aguardando")) classeCor = "aguardando";
+    else if (statusNormalizado.includes("concluido")) classeCor = "concluido";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -224,7 +230,7 @@ function renderizarPagina() {
       <td>${l["Concorrente"]}</td>
       <td>${l["Entidade"]}</td>
       <td>${l["Região"]}</td>
-      <td class="status ${statusClasse}">${l["Status"]}</td>
+      <td><span class="status-box ${classeCor}">${statusTexto}</span></td>
     `;
     tbody.appendChild(tr);
   });
@@ -235,7 +241,6 @@ function renderizarPagina() {
   }
 }
 
-/* INICIALIZA */
 carregarDados();
 setInterval(renderizarPagina, TEMPO_PAGINA);
 setInterval(carregarDados, 30000);
@@ -243,7 +248,3 @@ setInterval(carregarDados, 30000);
 
 </body>
 </html>
-
-
-
-
