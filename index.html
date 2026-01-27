@@ -172,11 +172,9 @@ tbody tr:nth-child(even) {
     <thead>
       <tr>
         <th>Ordem</th>
-        <th>Cód.</th>
         <th>Categoria</th>
         <th>Concorrente</th>
         <th>Entidade</th>
-        <th>Município</th>
         <th>Região</th>
         <th>Status</th>
       </tr>
@@ -222,11 +220,9 @@ function renderizarPagina() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${l["Ordem"]}</td>
-      <td>${l["Cód."]}</td>
       <td>${l["Categoria"]}</td>
       <td>${l["Concorrente"]}</td>
       <td>${l["Entidade"]}</td>
-      <td>${l["Municipio"]}</td>
       <td>${l["Região"]}</td>
       <td class="status ${statusClasse}">${l["Status"]}</td>
     `;
